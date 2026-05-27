@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Barthimaeus Gateway Avatar</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #09080c;
+      --panel: #121015;
+      --panel-2: #19141b;
+      --text: #efe8da;
+      --muted: #a39a92;
+      --ruby: #9f1f2f;
+      --ember: #f0b45a;
+      --gold: #ffd978;
+      --teal: #59d0c8;
+      --smoke: #5b4a7a;
+      --line: rgba(255, 217, 120, 0.34);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 48% 38%, rgba(159, 31, 47, 0.18), transparent 32rem),
+        linear-gradient(145deg, #070609 0%, #101116 54%, #09080c 100%);
+      color: var(--text);
+      font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(100vw, 860px);
+      padding: 28px;
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+    }
+
+    .stage {
+      width: min(82vw, 460px, 58vh);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 13%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 48% 52%, rgba(240, 180, 90, 0.22), transparent 37%),
+        conic-gradient(from 220deg, rgba(89, 208, 200, 0.1), rgba(159, 31, 47, 0.25), rgba(255, 217, 120, 0.16), rgba(89, 208, 200, 0.1));
+      filter: blur(24px);
+      opacity: 0.82;
+      transform: translateZ(0);
+      animation: aura 7s ease-in-out infinite;
+      z-index: -2;
+    }
+
+    .stage::after {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 217, 120, 0.18);
+      box-shadow: inset 0 0 55px rgba(89, 208, 200, 0.08), 0 0 80px rgba(159, 31, 47, 0.14);
+      z-index: -1;
+    }
+
+    .avatar {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      filter: drop-shadow(0 28px 38px rgba(0, 0, 0, 0.42));
+    }
+
+    .idle .head {
+      animation: float 5.4s ease-in-out infinite;
+      transform-origin: 50% 55%;
+    }
+
+    .idle .smoke {
+      animation: smokeDrift 8.5s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    .idle .smoke.second {
+      animation-delay: -3.2s;
+    }
+
+    .idle .eye-glow {
+      animation: eyes 4.8s ease-in-out infinite;
+    }
+
+    .idle .spark {
+      animation: spark 5.7s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    .idle .spark:nth-of-type(2n) {
+      animation-delay: -1.8s;
+    }
+
+    .idle .spark:nth-of-type(3n) {
+      animation-delay: -3.4s;
+    }
+
+    .state-chip {
+      min-width: 132px;
+      border: 1px solid rgba(255, 217, 120, 0.26);
+      border-radius: 999px;
+      padding: 8px 14px;
+      background: rgba(18, 16, 21, 0.7);
+      color: var(--gold);
+      text-align: center;
+      letter-spacing: 0;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+    }
+
+    .controls {
+      width: min(92vw, 560px);
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px;
+      background: rgba(18, 16, 21, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      backdrop-filter: blur(12px);
+    }
+
+    button {
+      min-height: 38px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font: inherit;
+    }
+
+    button[aria-pressed="true"] {
+      border-color: rgba(255, 217, 120, 0.3);
+      background: rgba(255, 217, 120, 0.12);
+      color: var(--text);
+    }
+
+    [data-state="sleep"] .eye-glow,
+    [data-state="sleep"] .iris,
+    [data-state="sleep"] .mouth {
+      opacity: 0.18;
+    }
+
+    [data-state="sleep"] .lid {
+      transform: translateY(10px);
+      opacity: 1;
+    }
+
+    [data-state="thinking"] .halo-rune {
+      stroke: var(--teal);
+      opacity: 0.74;
+      animation: runeSpin 8s linear infinite;
+      transform-origin: 256px 256px;
+    }
+
+    [data-state="thinking"] .eye-glow {
+      fill: var(--teal);
+    }
+
+    [data-state="working"] .spark {
+      fill: var(--teal);
+      animation-duration: 2.2s;
+    }
+
+    [data-state="working"] .halo-rune {
+      opacity: 0.48;
+    }
+
+    [data-state="irked"] .brow.left {
+      transform: rotate(8deg) translate(5px, -6px);
+    }
+
+    [data-state="irked"] .brow.right {
+      transform: rotate(-8deg) translate(-5px, -6px);
+    }
+
+    [data-state="irked"] .mouth {
+      d: path("M218 328 C238 318 274 318 296 330");
+    }
+
+    [data-state="proud"] .head {
+      transform: translateY(-10px) scale(1.015);
+    }
+
+    [data-state="proud"] .mouth {
+      d: path("M214 322 C244 347 282 343 308 315");
+    }
+
+    .lid {
+      opacity: 0;
+      transition: transform 220ms ease, opacity 220ms ease;
+    }
+
+    .brow,
+    .mouth,
+    .eye-glow,
+    .iris,
+    .halo-rune,
+    .spark {
+      transition: transform 220ms ease, opacity 220ms ease, fill 220ms ease, stroke 220ms ease;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-0.8deg); }
+      50% { transform: translateY(-12px) rotate(0.8deg); }
+    }
+
+    @keyframes aura {
+      0%, 100% { transform: scale(0.98); opacity: 0.68; }
+      50% { transform: scale(1.04); opacity: 0.96; }
+    }
+
+    @keyframes smokeDrift {
+      0%, 100% { transform: translate(-4px, 4px) rotate(-2deg); opacity: 0.62; }
+      50% { transform: translate(8px, -10px) rotate(3deg); opacity: 0.86; }
+    }
+
+    @keyframes eyes {
+      0%, 100% { opacity: 0.78; }
+      47% { opacity: 1; }
+      52% { opacity: 0.38; }
+      57% { opacity: 1; }
+    }
+
+    @keyframes spark {
+      0%, 100% { transform: translateY(0) scale(0.76); opacity: 0.28; }
+      48% { transform: translateY(-18px) scale(1); opacity: 0.96; }
+    }
+
+    @keyframes runeSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 620px) {
+      main {
+        padding: 18px;
+      }
+
+      .controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="stage idle" data-state="idle" aria-label="Animated Barthimaeus gateway avatar">
+      <svg class="avatar" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+        <title id="title">Barthimaeus Gateway Avatar</title>
+        <desc id="desc">A stylized smoky red djinn head with gold eyes and animated state changes.</desc>
+        <defs>
+          <radialGradient id="face" cx="46%" cy="38%" r="64%">
+            <stop offset="0%" stop-color="#ad3142"/>
+            <stop offset="58%" stop-color="#5f1824"/>
+            <stop offset="100%" stop-color="#201017"/>
+          </radialGradient>
+          <linearGradient id="horn" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3e2730"/>
+            <stop offset="48%" stop-color="#9f6955"/>
+            <stop offset="100%" stop-color="#efbd71"/>
+          </linearGradient>
+          <linearGradient id="smokeLine" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#4d88a0" stop-opacity="0"/>
+            <stop offset="45%" stop-color="#6a527c" stop-opacity="0.75"/>
+            <stop offset="100%" stop-color="#ffd978" stop-opacity="0.08"/>
+          </linearGradient>
+          <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="7" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <g class="smoke" fill="none" stroke="url(#smokeLine)" stroke-width="13" stroke-linecap="round">
+          <path d="M110 357 C56 306 84 242 144 216 C201 191 166 125 107 124"/>
+          <path d="M395 360 C448 317 426 254 370 228 C305 198 341 139 406 136"/>
+          <path d="M166 124 C195 73 258 69 283 116 C300 148 264 165 243 138"/>
+        </g>
+        <g class="smoke second" fill="none" stroke="rgba(159,31,47,0.34)" stroke-width="8" stroke-linecap="round">
+          <path d="M84 412 C132 362 119 319 75 291"/>
+          <path d="M421 413 C382 360 395 315 441 288"/>
+        </g>
+
+        <path class="halo-rune" d="M155 399 A156 156 0 1 1 357 399" fill="none" stroke="rgba(255,217,120,0.18)" stroke-width="2" stroke-dasharray="18 20"/>
+
+        <g class="spark" fill="#ffd978" filter="url(#softGlow)">
+          <circle cx="118" cy="211" r="3.5"/>
+          <circle cx="388" cy="206" r="4"/>
+          <circle cx="139" cy="367" r="3"/>
+          <circle cx="371" cy="365" r="3.5"/>
+          <circle cx="255" cy="72" r="3"/>
+          <circle cx="430" cy="272" r="2.8"/>
+          <circle cx="82" cy="278" r="2.8"/>
+        </g>
+
+        <g class="head">
+          <path d="M169 182 C128 118 104 70 96 34 C134 47 176 83 200 136 Z" fill="url(#horn)" stroke="#e8b464" stroke-width="4"/>
+          <path d="M343 182 C384 118 408 70 416 34 C378 47 336 83 312 136 Z" fill="url(#horn)" stroke="#e8b464" stroke-width="4"/>
+          <path d="M144 265 C114 243 100 211 94 177 C134 190 158 211 169 240 Z" fill="#4f1520" stroke="#d49b5b" stroke-width="3"/>
+          <path d="M368 265 C398 243 412 211 418 177 C378 190 354 211 343 240 Z" fill="#4f1520" stroke="#d49b5b" stroke-width="3"/>
+
+          <path d="M256 101 C319 108 356 166 359 244 C363 331 311 397 256 421 C201 397 149 331 153 244 C156 166 193 108 256 101 Z" fill="url(#face)" stroke="#e9b565" stroke-width="5"/>
+          <path d="M256 109 C237 164 238 214 256 264 C276 214 275 164 256 109 Z" fill="#2a121b" opacity="0.64"/>
+          <path d="M205 146 C218 105 239 82 256 67 C273 82 294 105 307 146 C287 132 225 132 205 146 Z" fill="#201018" stroke="#e8b464" stroke-width="4"/>
+          <path d="M239 105 L256 77 L273 105 L256 139 Z" fill="#7d2f37" stroke="#ffd978" stroke-width="4"/>
+          <path d="M256 86 L267 105 L256 127 L245 105 Z" fill="#59d0c8" opacity="0.55"/>
+          <path d="M191 165 C174 191 171 223 181 256" fill="none" stroke="rgba(255,217,120,0.38)" stroke-width="4" stroke-linecap="round"/>
+          <path d="M321 165 C338 191 341 223 331 256" fill="none" stroke="rgba(255,217,120,0.38)" stroke-width="4" stroke-linecap="round"/>
+
+          <path class="brow left" d="M188 238 C209 220 235 221 251 236" fill="none" stroke="#12090d" stroke-width="12" stroke-linecap="round"/>
+          <path class="brow right" d="M324 238 C303 220 277 221 261 236" fill="none" stroke="#12090d" stroke-width="12" stroke-linecap="round"/>
+
+          <path class="eye-glow" d="M188 258 C209 240 238 243 252 260 C228 268 207 266 188 258 Z" fill="#ffd978" filter="url(#softGlow)"/>
+          <path class="eye-glow" d="M324 258 C303 240 274 243 260 260 C284 268 305 266 324 258 Z" fill="#ffd978" filter="url(#softGlow)"/>
+          <circle class="iris" cx="222" cy="256" r="4.2" fill="#13090b"/>
+          <circle class="iris" cx="290" cy="256" r="4.2" fill="#13090b"/>
+          <path class="lid" d="M188 253 C211 256 234 256 252 253" fill="none" stroke="#170b10" stroke-width="10" stroke-linecap="round"/>
+          <path class="lid" d="M260 253 C281 256 303 256 324 253" fill="none" stroke="#170b10" stroke-width="10" stroke-linecap="round"/>
+
+          <path d="M255 265 C239 297 238 322 256 331 C274 322 273 297 257 265" fill="#34111a" stroke="#e1a760" stroke-width="3"/>
+          <path class="mouth" d="M213 324 C244 340 281 335 306 316" fill="none" stroke="#ffd978" stroke-width="7" stroke-linecap="round"/>
+          <path d="M206 352 C235 388 278 391 309 351" fill="none" stroke="rgba(255,217,120,0.24)" stroke-width="4" stroke-linecap="round"/>
+          <path d="M194 386 C220 438 293 438 318 386 C291 410 221 410 194 386 Z" fill="#1a0c11" opacity="0.7"/>
+          <path d="M164 426 C205 393 306 393 348 426 C319 468 192 468 164 426 Z" fill="#241119" stroke="rgba(255,217,120,0.28)" stroke-width="4"/>
+          <path d="M211 420 L256 451 L301 420" fill="none" stroke="#d49b5b" stroke-width="4" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </section>
+
+    <div class="state-chip" id="stateChip">idle</div>
+    <nav class="controls" aria-label="Avatar states">
+      <button type="button" data-state-button="idle" aria-pressed="true">Idle</button>
+      <button type="button" data-state-button="sleep" aria-pressed="false">Sleep</button>
+      <button type="button" data-state-button="thinking" aria-pressed="false">Thinking</button>
+      <button type="button" data-state-button="working" aria-pressed="false">Working</button>
+      <button type="button" data-state-button="irked" aria-pressed="false">Irked</button>
+      <button type="button" data-state-button="proud" aria-pressed="false">Proud</button>
+    </nav>
+  </main>
+
+  <script>
+    const stage = document.querySelector(".stage");
+    const stateChip = document.querySelector("#stateChip");
+    const buttons = [...document.querySelectorAll("[data-state-button]")];
+
+    function setState(state) {
+      if (!buttons.some((button) => button.dataset.stateButton === state)) {
+        state = "idle";
+      }
+      stage.dataset.state = state;
+      stateChip.textContent = state;
+      buttons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.stateButton === state));
+      });
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => setState(button.dataset.stateButton));
+    });
+
+    setState(new URLSearchParams(window.location.search).get("state") || "idle");
+  </script>
+</body>
+</html>

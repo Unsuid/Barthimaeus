@@ -1,5 +1,9 @@
 # OpenClaw Hook Notes
 
+Detailed hotfix note:
+
+- `docs/openclaw-native-hook-relay-hotfix-2026-05-28.md`
+
 Observed failure:
 
 ```text
